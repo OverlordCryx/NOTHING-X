@@ -1,0 +1,198 @@
+﻿
+<html lang="en">
+<head>
+      <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #050300 0%, #120900 100%);
+            color: #e0e0e0;
+            display: block;
+            
+            min-height: 100vh;
+            overflow: hidden;
+            animation: fadeInBody 1s ease-in-out;
+        }
+        #monaco-editor {
+            width: 100vw;
+            max-width: none;
+            height: 100vh;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease-in-out;
+            overflow: hidden;
+        }
+
+        @keyframes fadeInBody {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+            to { box-shadow: 0 0 30px rgba(255, 0, 0, 0.7), 0 0 60px rgba(255, 0, 0, 0.3); }
+        }
+
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="monaco-editor"></div>
+<script>
+        let editor;
+        function initializeMonacoEditor() {
+            try {
+                if (typeof require === 'undefined') {
+                    throw new Error('Require.js not loaded');
+                }
+                document.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                });
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' } });
+                require(['vs/editor/editor.main'], function () {
+                    try {
+                        monaco.languages.setMonarchTokensProvider('lua', {
+                            defaultToken: '',
+                            tokenPostfix: '.lua',
+                            keywords: [
+                                'and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for', 'function', 'if',
+                                'in', 'local', 'nil', 'not', 'or', 'repeat', 'return', 'then', 'true', 'until', 'while'
+                            ],
+                            robloxGlobals: [
+                                '_G', '_VERSION', 'Enum', 'game', 'plugin', 'shared', 'script', 'workspace',
+                                'DebuggerManager', 'elapsedTime', 'LoadLibrary', 'PluginManager', 'settings',
+                                'tick', 'time', 'typeof', 'UserSettings', 'HumanoidRootPart'
+                            ],
+                            robloxClasses: [
+                                'Drawing', 'debug', 'Instance', 'Color3', 'Vector3', 'Vector2', 'BrickColor',
+                                'math', 'table', 'string', 'coroutine', 'Humanoid', 'ClickDetector', 'LocalScript',
+                                'Model', 'ModuleScript', 'Mouse', 'Part', 'Script', 'Tool', 'RunService',
+                                'UserInputService', 'Workspace', 'ReplicatedFirst', 'SoundService', 'Character',
+                                'CoreGui', 'ReplicatedStorage', 'Lighting', 'Players', 'PlayerGui', 'PlayerScript',
+                                'LocalPlayer', 'Parent'
+                            ],
+                            utilityFunctions: [
+                                'print', 'warn', 'info', 'printidentity', 'assert', 'collectgarbage',
+                                'error', 'getfenv', 'getmetatable', 'setmetatable', 'ipairs', 'loadfile',
+                                'loadstring', 'newproxy', 'next', 'pairs', 'pcall', 'spawn', 'rawequal',
+                                'rawget', 'rawset', 'select', 'tonumber', 'tostring', 'type', 'unpack', 'xpcall',
+                                'delay', 'stats'
+                            ],
+                            tokenizer: {
+                                root: [
+                                    [/\b(_G|_VERSION|Enum|game|plugin|shared|script|workspace|DebuggerManager|elapsedTime|LoadLibrary|PluginManager|settings|tick|time|typeof|UserSettings|HumanoidRootPart)\b/, 'roblox-global'],
+                                    [/\b(and|break|do|else|elseif|end|false|for|function|if|in|local|nil|not|or|repeat|return|then|true|until|while)\b/, 'keyword'],
+                                    [/\bmath\.(abs|acos|asin|atan|atan2|ceil|cos|cosh|deg|exp|floor|fmod|frexp|huge|ldexp|log|max|min|modf|pi|pow|rad|random|randomseed|sin|sinh|sqrt|tan|tanh)\b/, 'math-function'],
+                                    [/\btable\.(concat|foreach|foreachi|sort|insert|remove)\b/, 'table-function'],
+                                    [/\b(Color3|Instance|BrickColor|Vector3|Vector2)\.new\b/, 'roblox-constructor'],
+                                    [/\bdebug\.getinfo\b/, 'debug-function'],
+                                    [/\bstring\.(byte|char|dump|find|format|gmatch|gsub|len|lower|match|rep|reverse|sub|upper)\b/, 'string-function'],
+                                    [/\bcoroutine\.(create|resume|running|status|wrap|yield)\b/, 'coroutine-function'],
+                                    [/\b(Drawing|debug|Instance|Color3|Vector3|Vector2|BrickColor|math|table|string|coroutine|Humanoid|ClickDetector|LocalScript|Model|ModuleScript|Mouse|Part|Script|Tool|RunService|UserInputService|Workspace|ReplicatedFirst|SoundService|Character|CoreGui|ReplicatedStorage|Lighting|Players|PlayerGui|PlayerScript|LocalPlayer|Parent)\b/, 'roblox-class'],
+                                    [/\b(print|warn|info|printidentity|assert|collectgarbage|error|getfenv|getmetatable|setmetatable|ipairs|loadfile|loadstring|newproxy|next|pairs|pcall|spawn|rawequal|rawget|rawset|select|tonumber|tostring|type|unpack|xpcall|delay|stats)\b/, 'utility-function'],
+                                    [/(?<=:)(Remove|BreakJoints|GetChildren|FindFirstChild|FireServer|InvokeServer|ClearAllChildren|Clone|Destroy|FindFirstAncestor|FindFirstAncestorOfClass|FindFirstAncestorWhichIsA|FindFirstChildOfClass|FindFirstChildWhichIsA|GetDebugId|GetDescendants|GetFullName|IsA|GetPropertyChangedSignal|IsAncestorOf|IsDescendantOf|WaitForChild|Connect|AncestryChanged|Changed|ChildAdded|ChildRemoved|DescendantAdded|DescendantRemoving|GetService|GetObjects|HttpGet|Wait)\b/, 'roblox-method'],
+                                    [/\b(HttpGet|HttpGetAsync|HttpPostAsync)\b/, 'http-function'],
+                                    [/\b(Visible|Color|Transparency|Thickness|From|To|Text|Size|Center|Outline|OutlineColor|Position|TextBounds|Font|Data|Rounding|NumSides|Radius|Filled|PointA|PointB|PointC|PointD)\b/, 'roblox-property'],
+                                    [/"[^"]*"/, 'string'],
+                                    [/'[^']*'/, 'string'],
+                                    [/\d+/, 'number'],
+                                    [/--.*$/, 'comment'],
+                                    [/[+\-*\/%^#=<>~]/, 'operator'],
+                                    [/[;,:.(){}]/, 'delimiter']
+                                ]
+                            }
+                        });
+                        monaco.editor.defineTheme('custom-theme', {
+                            base: 'vs-dark',
+                            inherit: true,
+                            rules: [
+                                { token: 'keyword', foreground: 'ff8c00', fontStyle: 'bold' },
+                                { token: 'string', foreground: 'ffb366' },
+                                { token: 'number', foreground: 'ffc266' },
+                                { token: 'comment', foreground: '808080', fontStyle: 'italic' },
+                                { token: 'operator', foreground: 'ffa040' },
+                                { token: 'delimiter', foreground: 'ffffff' },
+                                { token: 'roblox-global', foreground: 'ff8c00' },
+                                { token: 'math-function', foreground: 'ffb366' },
+                                { token: 'table-function', foreground: 'ffb366' },
+                                { token: 'roblox-constructor', foreground: 'ffc266' },
+                                { token: 'debug-function', foreground: 'ffc266' },
+                                { token: 'string-function', foreground: 'ffb366' },
+                                { token: 'coroutine-function', foreground: 'ffb366' },
+                                { token: 'roblox-class', foreground: 'ff8c00' },
+                                { token: 'utility-function', foreground: 'ffc266' },
+                                { token: 'roblox-method', foreground: 'ff8c00' },
+                                { token: 'http-function', foreground: 'ffa040' },
+                                { token: 'roblox-property', foreground: 'ffb366' },
+                                { token: 'identifier', foreground: 'ffffff' },
+                                { token: 'function', foreground: 'ffb366' },
+                                { token: 'constant', foreground: 'ffc266' },
+                                { token: 'tag', foreground: 'ff8c00' },
+                                { token: 'variable', foreground: 'ffffff' },
+                                { token: 'metatable', foreground: 'ffc266' },
+                                { token: 'luau-type', foreground: 'ffa040' },
+                                { token: 'luau-annotation', foreground: 'ffa040' },
+                                { token: 'roblox-event', foreground: 'ffc266' },
+                                { token: 'roblox-enum', foreground: 'ffc266' },
+                                { token: 'roblox-service', foreground: 'ff8c00' }
+                            ],
+                            colors: {
+                                'editor.background': '#060300',
+                                'minimap.background': '#060300',
+                                'editor.foreground': '#ffffff',
+                                'editor.lineHighlightBackground': '#1a0d00',
+                                'editor.lineNumbers': '#a0a0a0',
+                                'editor.selectionBackground': '#2a1500',
+                                'editorCursor.foreground': '#ff8c00',
+                                'editorGutter.background': '#060300',
+                                'editorSuggestWidget.background': '#1a0d00',
+                                'editorSuggestWidget.foreground': '#ffffff',
+                                'editorSuggestWidget.selectedBackground': '#2a1500',
+                                'editorHoverWidget.background': '#1a0d00',
+                                'editorHoverWidget.foreground': '#ffffff',
+                                'editorError.foreground': '#ff8c00',
+                                'editorWarning.foreground': '#ffc266',
+                                'editorIndentGuide.background': '#333333',
+                                'editorIndentGuide.activeBackground': '#555555'
+                            }
+                        });
+                        editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+                            value: '',
+                            language: 'lua',
+                            theme: 'custom-theme',
+                            minimap: { enabled: false },
+                            automaticLayout: true,
+                            fontSize: 13,
+                            contextmenu: false,
+                            scrollBeyondLastLine: false,
+                            renderLineHighlight: 'all',
+                            cursorBlinking: 'smooth',
+                            cursorSmoothCaretAnimation: true
+                        });
+                        editor.getDomNode().style.animation = 'fadeIn 1s ease-in-out';
+                    } catch (e) {
+                        console.error('Monaco Editor initialization failed:', e);
+                    }
+                });
+            } catch (e) {
+                console.error('Require.js not loaded:', e);
+            }
+        }
+        initializeMonacoEditor();
+</script>
+</body>
+</html>
+
+
