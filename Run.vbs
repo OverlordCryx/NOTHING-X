@@ -2,7 +2,7 @@ Set sh = CreateObject("WScript.Shell")
 Set objShell = CreateObject("Shell.Application")
 
 
-WScript.Sleep 1000
+WScript.Sleep 6000
 
 
 
@@ -12,12 +12,11 @@ WScript.Sleep 1000
 
 
 On Error Resume Next
-
-sh.Run """C:\Users\Administrator\Videos\V\Network R USB.vbs""", 0, true
+sh.Run """C:\START--\RGB\set-logitech-color.vbs""", 0, False
+sh.Run """C:\START--\Network R USB.vbs""", 0, true
 WScript.Sleep 6000
 sh.Run """C:\Program Files\Waterfox\waterfox.exe""", 2, False
 sh.Run """C:\Users\Administrator\AppData\Roaming\Spotify\Spotify.exe""", 2, False
-sh.Run """C:\Users\Administrator\Videos\RGB\set-logitech-color.vbs""", 0, False
 
 fx = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\FxSound\FxSound.lnk"
 
